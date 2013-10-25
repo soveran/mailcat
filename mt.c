@@ -36,17 +36,17 @@ DEALINGS IN THE SOFTWARE.
 
 struct {
 
-	// Server and client addresses.
+	/* Server and client addresses. */
 	struct sockaddr_in sa, ca;
 
-	// Socket and connection descriptors.
+	/* Socket and connection descriptors. */
 	int sd, cd;
 } mt;
 
-// Socket reading buffer.
+/* Socket reading buffer. */
 char buff[MT_MAXREAD_SIZE];
 
-// Verify the port is in the range 0-65535.
+/* Verify the port is in the range 0-65535. */
 void assert_port(int port) {
 	if (port < 0 || port > 65535) {
 		fprintf(stderr, "Invalid port: %d\n", port);
@@ -54,7 +54,7 @@ void assert_port(int port) {
 	}
 }
 
-// Verify the file descriptor is valid.
+/* Verify the file descriptor is valid. */
 void assert_descriptor(int desc) {
 	if (desc < 0) {
 		fprintf(stderr, "Error: %s.\n", strerror(errno));
@@ -62,15 +62,15 @@ void assert_descriptor(int desc) {
 	}
 }
 
-// Write <str> to socket <mt.cd>.
+/* Write <str> to socket <mt.cd>. */
 void send_chunk(char *str) {
 	send(mt.cd, str, strlen(str), 0);
 }
 
-// Read from socket <mt.cd>.
+/* Read from socket <mt.cd>. */
 ssize_t recv_chunk() {
 
-	// Number of bytes read from socket.
+	/* Number of bytes read from socket. */
 	ssize_t br = recv(mt.cd, &buff, sizeof(buff)-1, 0);
 
 	if (br <= 0) {
@@ -78,13 +78,13 @@ ssize_t recv_chunk() {
 		exit(EXIT_FAILURE);
 	}
 
-	// Terminate the string.
+	/* Terminate the string. */
 	buff[br] = '\0';
 
 	return br;
 }
 
-// Read from <fd> until <ending> is found, and display to stdout.
+/* Read from <fd> until <ending> is found, and display to stdout. */
 void display_upto(int fd, const char *ending) {
 	char ch;
 
@@ -116,13 +116,13 @@ void display_upto(int fd, const char *ending) {
 
 int main(int argc, char **argv) {
 
-	// Server port number.
+	/* Server port number. */
 	int port;
 
-	// Socket length.
+	/* Socket length. */
 	socklen_t sl;
 
-	// Number of bytes read from socket.
+	/* Number of bytes read from socket. */
 	ssize_t br;
 
 	if (argv[1] == NULL) {
@@ -132,19 +132,19 @@ int main(int argc, char **argv) {
 		assert_port(port);
 	}
 
-	// Socket descriptor.
+	/* Socket descriptor. */
 	mt.sd = socket(AF_INET, SOCK_STREAM, 0);
 	assert_descriptor(mt.sd);
 
-	// Fill server address struct with zeroes.
+	/* Fill server address struct with zeroes. */
 	memset((char *)&mt.sa, 0, sizeof(mt.sa));
 
-	// Configure server address.
+	/* Configure server address. */
 	mt.sa.sin_family = AF_INET;
 	mt.sa.sin_addr.s_addr = INADDR_ANY;
 	mt.sa.sin_port = htons(port);
 
-	// Try to bind server.
+	/* Try to bind server. */
 	if (bind(mt.sd, (struct sockaddr *)&mt.sa, sizeof(mt.sa)) < 0) {
 		fprintf(stderr, "Couldn't bind to port %d.\n", port);
 		exit(EXIT_FAILURE);
@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
 		printf("Listening on port %d\n", port);
 	}
 
-	// Listen with a limit of 10 waiting connections.
+	/* Listen with a limit of 10 waiting connections. */
 	listen(mt.sd, 10);
 
 	sl = sizeof(mt.ca);
@@ -161,36 +161,36 @@ int main(int argc, char **argv) {
 		mt.cd = accept(mt.sd, (struct sockaddr *)&mt.ca, &sl);
 		assert_descriptor(mt.cd);
 
-		// Service ready.
+		/* Service ready. */
 		send_chunk("220\r\n");
 		br = recv_chunk();
 
-		// Skip everything upto DATA.
+		/* Skip everything upto DATA. */
 		while (strncmp(buff, "DATA\r\n", br) != 0) {
 
-			// Requested mail action okay, completed.
+			/* Requested mail action okay, completed. */
 			send_chunk("250\r\n");
 			br = recv_chunk();
 		}
 
-		// Start mail input; end with `<CRLF>.<CRLF>`.
+		/* Start mail input; end with `<CRLF>.<CRLF>`. */
 		send_chunk("354\r\n");
 
 		printf("---\n");
 
-		// Display the mail body.
+		/* Display the mail body. */
 		display_upto(mt.cd, "\r\n.\r\n");
 
 		printf("\n");
 
-		// Requested mail action okay, completed.
+		/* Requested mail action okay, completed. */
 		send_chunk("250\r\n");
 		recv_chunk();
 
-		// Service closing transmission channel.
+		/* Service closing transmission channel. */
 		send_chunk("221\r\n");
 
-		// Close file descriptor.
+		/* Close file descriptor. */
 		close(mt.cd);
 	}
 }
