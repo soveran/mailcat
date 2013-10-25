@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
 		// Display the mail body.
 		display_upto(mt.cd, "\r\n.\r\n");
 
-		printf("\n---\n");
+		printf("\n");
 
 		// Requested mail action okay, completed.
 		send_chunk("250\r\n");
