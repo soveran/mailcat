@@ -28,6 +28,7 @@ DEALINGS IN THE SOFTWARE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <netinet/in.h>
 
 #define MT_MAXREAD_SIZE 4096
