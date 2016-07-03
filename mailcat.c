@@ -31,8 +31,8 @@ DEALINGS IN THE SOFTWARE.
 #include <unistd.h>
 #include <netinet/in.h>
 
-#define MT_MAXREAD_SIZE 4096
-#define MT_DEFAULT_PORT 25
+#define MC_MAXREAD_SIZE 4096
+#define MC_DEFAULT_PORT 25
 
 struct {
 
@@ -41,10 +41,10 @@ struct {
 
 	/* Socket and connection descriptors. */
 	int sd, cd;
-} mt;
+} mc;
 
 /* Socket reading buffer. */
-char buff[MT_MAXREAD_SIZE];
+char buff[MC_MAXREAD_SIZE];
 
 /* Verify the port is in the range 0-65535. */
 void assert_port(int port) {
@@ -62,16 +62,16 @@ void assert_descriptor(int desc) {
 	}
 }
 
-/* Write <str> to socket <mt.cd>. */
+/* Write <str> to socket <mc.cd>. */
 void send_chunk(char *str) {
-	send(mt.cd, str, strlen(str), 0);
+	send(mc.cd, str, strlen(str), 0);
 }
 
-/* Read from socket <mt.cd>. */
+/* Read from socket <mc.cd>. */
 ssize_t recv_chunk() {
 
 	/* Number of bytes read from socket. */
-	ssize_t br = recv(mt.cd, &buff, sizeof(buff)-1, 0);
+	ssize_t br = recv(mc.cd, &buff, sizeof(buff)-1, 0);
 
 	if (br <= 0) {
 		fprintf(stderr, "Error: %s.\n", strerror(errno));
@@ -126,26 +126,26 @@ int main(int argc, char **argv) {
 	ssize_t br;
 
 	if (argv[1] == NULL) {
-		port = MT_DEFAULT_PORT;
+		port = MC_DEFAULT_PORT;
 	} else {
 		port = atoi(argv[1]);
 		assert_port(port);
 	}
 
 	/* Socket descriptor. */
-	mt.sd = socket(AF_INET, SOCK_STREAM, 0);
-	assert_descriptor(mt.sd);
+	mc.sd = socket(AF_INET, SOCK_STREAM, 0);
+	assert_descriptor(mc.sd);
 
 	/* Fill server address struct with zeroes. */
-	memset((char *)&mt.sa, 0, sizeof(mt.sa));
+	memset((char *)&mc.sa, 0, sizeof(mc.sa));
 
 	/* Configure server address. */
-	mt.sa.sin_family = AF_INET;
-	mt.sa.sin_addr.s_addr = INADDR_ANY;
-	mt.sa.sin_port = htons(port);
+	mc.sa.sin_family = AF_INET;
+	mc.sa.sin_addr.s_addr = INADDR_ANY;
+	mc.sa.sin_port = htons(port);
 
 	/* Try to bind server. */
-	if (bind(mt.sd, (struct sockaddr *)&mt.sa, sizeof(mt.sa)) < 0) {
+	if (bind(mc.sd, (struct sockaddr *)&mc.sa, sizeof(mc.sa)) < 0) {
 		fprintf(stderr, "Couldn't bind to port %d.\n", port);
 		exit(EXIT_FAILURE);
 	} else {
@@ -153,13 +153,13 @@ int main(int argc, char **argv) {
 	}
 
 	/* Listen with a limit of 10 waiting connections. */
-	listen(mt.sd, 10);
+	listen(mc.sd, 10);
 
-	sl = sizeof(mt.ca);
+	sl = sizeof(mc.ca);
 
 	while (1) {
-		mt.cd = accept(mt.sd, (struct sockaddr *)&mt.ca, &sl);
-		assert_descriptor(mt.cd);
+		mc.cd = accept(mc.sd, (struct sockaddr *)&mc.ca, &sl);
+		assert_descriptor(mc.cd);
 
 		/* Service ready. */
 		send_chunk("220\r\n");
@@ -179,7 +179,7 @@ int main(int argc, char **argv) {
 		printf("---\n");
 
 		/* Display the mail body. */
-		display_upto(mt.cd, "\r\n.\r\n");
+		display_upto(mc.cd, "\r\n.\r\n");
 
 		printf("\n");
 
@@ -191,6 +191,6 @@ int main(int argc, char **argv) {
 		send_chunk("221\r\n");
 
 		/* Close file descriptor. */
-		close(mt.cd);
+		close(mc.cd);
 	}
 }

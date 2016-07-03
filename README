@@ -1,35 +1,32 @@
-mt -- Mail tester daemon
+mailcat -- Fake SMTP server that prints emails to stdout
 
 Description
 -----------
 
-Fake SMTP server that prints emails to stdout.
-
-It binds to port 25 by default, so probably you
-will have to sudo it. If you want to run it in
-a different port, pass the port number as the
-first argument.
+This program binds to port 25 by default (you may need to use sudo)
+and streams to stdout all the incoming emails. If you want to run
+it in a different port, pass the port number as the first argument.
 
 Examples
 --------
 
 Print emails to stdout:
 
-	$ sudo mt
+	$ sudo mailcat
 
-Tell `mt` to bind to port 2525 instead:
+Tell `mailcat` to bind to port 2525 instead:
 
-	$ mt 2525
+	$ mailcat 2525
 
 Run it in the background:
 
-	$ mt &
+	$ mailcat &
 
 Installation
 ------------
 
-Grab `mt.c`, then run:
+Grab `mailcat.c`, then run:
 
-	$ make mt
+	$ make mailcat
 
 Copy the executable anywhere in your path.

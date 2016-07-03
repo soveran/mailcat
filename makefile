@@ -1,0 +1,1 @@
+CFLAGS=-ansi -Wall
