@@ -1,0 +1,40 @@
+.Dd September 4, 2017
+.Dt MAILCAT 1
+.
+.Sh NAME
+.
+.Nm mailcat
+.Nd Fake SMTP server that prints emails to stdout.
+.
+.Sh SYNOPSIS
+.
+.Nm
+.Op Ar port
+.
+.Sh DESCRIPTION
+.
+.Nm
+binds to port 25 by default (you may need to use sudo)
+and streams to stdout all the incoming emails. If you want to run
+it in a different port, pass the port number as the first argument.
+.
+.Sh EXAMPLES
+.
+Print emails to stdout:
+.Pp
+.Dl $ sudo mailcat
+.Pp
+Tell
+.Nm
+to bind to port 2525 instead:
+.Pp
+.Dl $ mailcat 2525
+.Pp
+Run
+.Nm
+in the background:
+.Pp
+.Dl $ mailcat &
+.Pp
+.Sh AUTHOR
+.An Michel Martens Aq mail@soveran.com
